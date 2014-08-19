@@ -21,6 +21,7 @@ public:
 	void removeNoiseMedian();
 	void removeNoiseFourier();
 	void enhance();
+	void highlight();
 
 private:
 	string infile, outfile;

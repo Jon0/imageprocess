@@ -109,4 +109,8 @@ void Process::enhance() {
 	imwrite(outfile, image);
 }
 
+void Process::highlight() {
+	//threshold(Image,result,150,255,THRESH_BINARY);
+}
+
 } /* namespace std */
