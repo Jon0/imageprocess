@@ -43,7 +43,11 @@ FaceClassifier::FaceClassifier() {
 FaceClassifier::~FaceClassifier() {}
 
 void FaceClassifier::addImage(string fname, int classtype) {
+
 	Mat in = imread(fname, CV_LOAD_IMAGE_GRAYSCALE);
+
+	// TODO normalise image?
+
 	if (in.cols == width && in.rows == height) {
 		images.push_back(in);
 		labels.push_back(classtype);
