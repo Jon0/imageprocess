@@ -7,10 +7,15 @@
 using namespace std;
 
 void parse_args(vector<string> args) {
-
 	for (string s: args) {
 		if (s == "-facedetect") {
-
+			FaceClassifier fc;
+			fc.train();
+			fc.test();
+		}
+		if (s == "-sobel") {
+			Process p("images/test-pattern.tif", "sobel.jpg");
+			p.sobel();
 		}
 	}
 
@@ -31,16 +36,10 @@ void do_part1() {
 }
 
 int main(int argc, char *argv[]) {
-
 	vector<string> args;
 	for (int i = 0; i < argc; ++i) {
 		args.push_back( string(argv[i]) );
 	}
 	parse_args(args);
-
-	FaceClassifier fc;
-	fc.train();
-	fc.test();
-
 	return 0;
 }
