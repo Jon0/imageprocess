@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "Directory.h"
@@ -32,18 +33,36 @@ static Mat normalise(Mat in) {
 }
 
 FaceClassifier::FaceClassifier() {
+	base_dir = "/local/scratch/";
 	width = 19;
 	height = 19;
+	numfeatures = 16;
 	correct = 0;
 	tested = 0;
-	model = createEigenFaceRecognizer(64);
+	model = createEigenFaceRecognizer(numfeatures);
     //model = createLBPHFaceRecognizer(1, 8, 8, 8);
 }
 
 FaceClassifier::~FaceClassifier() {}
 
-void FaceClassifier::addImage(string fname, int classtype) {
+void FaceClassifier::getWeights(ofstream &ofs, Mat &m, int classtype) {
+	Mat weights = model->getMat("eigenvalues");
+	for (int w = 0; w < weights.cols; ++w) {
+		double wval = weights.at<double>(w, 0);
+		ofs << wval << " ";
+	}
+	ofs << classtype;
+	ofs << endl;
+}
 
+void FaceClassifier::outputWeights(string file) {
+	ofstream ofs (file, ofstream::out);
+	for (int i = 0; i < images.size(); ++i) {
+		getWeights(ofs, images[i], labels[i]);
+	}
+}
+
+void FaceClassifier::addImage(string fname, int classtype) {
 	Mat in = imread(fname, CV_LOAD_IMAGE_GRAYSCALE);
 	if (in.cols == width && in.rows == height) {
 
@@ -55,8 +74,8 @@ void FaceClassifier::addImage(string fname, int classtype) {
 }
 
 void FaceClassifier::train() {
-	Directory train_f("images/train/face/");
-	Directory train_n("images/train/non-face/");
+	Directory train_f(base_dir+"train/face/");
+	Directory train_n(base_dir+"train/non-face/");
 
 	// make list of images and labels
 	for ( string fname: train_f.fileList() ) {
@@ -69,19 +88,26 @@ void FaceClassifier::train() {
 }
 
 void FaceClassifier::test() {
-	Directory test_f("images/test/face/");
-	Directory test_n("images/test/non-face/");
+	Directory test_f(base_dir+"test/face/");
+	Directory test_n(base_dir+"test/non-face/");
+
+	int face = 0, cface = 0, notface = 0, cnotface = 0;
 
 	for ( string fname: test_f.fileList() ) {
-		test(fname, 1);
+		if (test(fname, 1)) cface++;
+		face++;
 	}
 	for ( string fname: test_n.fileList() ) {
-		//test(fname, -1);
+		if (test(fname, -1)) cnotface++;
+		notface++;
 	}
+
+	cout << "TPF " << (float) cface / (float) face << endl;
+	cout << "FPF " << (float) (notface-cnotface) / (float) notface << endl;
 	cout << "correct " << (float) correct / (float) tested << endl;
 }
 
-void FaceClassifier::test(string file, int expected) {
+bool FaceClassifier::test(string file, int expected) {
 	Mat in = imread(file, CV_LOAD_IMAGE_GRAYSCALE);
 	if (in.cols == width && in.rows == height) {
 
@@ -90,13 +116,14 @@ void FaceClassifier::test(string file, int expected) {
 		int predictedLabel = -1;
 		double confidence = 0.0;
 		model->predict(in, predictedLabel, confidence);
-
-	    if (predictedLabel == expected) {
-	    	correct++;
-	    }
+		if (predictedLabel == expected) {
+			correct++;
+		}
 	    tested++;
 	    cout << "predict " << predictedLabel << " [" << expected << "] (" << (float) correct / (float) tested << ")" << endl;
+	    return predictedLabel == expected;
 	}
+	return false;
 }
 
 void FaceClassifier::features(Mat &m) {

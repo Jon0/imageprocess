@@ -24,23 +24,48 @@ Process::~Process() {
 
 void Process::sobel() {
 	Mat image = imread(infile, CV_LOAD_IMAGE_COLOR);
+	Mat greyimage, sobel_x_s, sobel_y_s;
 
-    Mat greyimage;
-    cvtColor(image, greyimage, CV_BGR2GRAY);
+	// convert to grey image
+	cvtColor(image, greyimage, CV_RGB2GRAY);
 
-    Mat sobel;
-    Sobel(greyimage, sobel, CV_32F, 1, 1);
+	// some values may become negative
+	// signed pixel values are required
+	int ddepth = CV_16S;
+	int scale = 1;
+	int delta = 0;
+
+	// calculate x gradient using sobel 3x3 matrix
+	Sobel(greyimage, sobel_x_s, ddepth, 1, 0);
+
+	// calculate y gradient using sobel 3x3 matrix
+	Sobel(greyimage, sobel_y_s, ddepth, 0, 1);
+
+	// power of 2 on sobel x and y components
+	pow(sobel_x_s, 2.0, sobel_x_s);
+	pow(sobel_y_s, 2.0, sobel_y_s);
+
+	// weighted sum of two arrays (sobel = 0.5 * sobel_x_u + 0.5 * sobel_y_u)
+	Mat sobel;
+	addWeighted(sobel_x_s, 1.0, sobel_y_s, 1.0, 0, sobel, CV_32F);
+	sqrt(sobel, sobel);
 
 	imwrite(outfile, sobel);
 }
 
-void Process::removeNoiseMedian() {
+void Process::removeNoiseMedian(int size) {
 	Mat image = imread(infile, CV_LOAD_IMAGE_COLOR);
 
 	Mat result;
-	medianBlur( image, result, 5 );
+	medianBlur( image, result, size );
 
 	imwrite(outfile, result);
+}
+
+void Process::removeNoiseMean(int s) {
+	Mat image = imread(infile, CV_LOAD_IMAGE_COLOR);
+	blur( image, image, Size( s, s ) ); // mean filter
+	imwrite(outfile, image);
 }
 
 void Process::removeNoiseFourier() {
@@ -100,8 +125,10 @@ void Process::enhance() {
 	int ddepth = -1;
 
 	// 3 x 3 matrix
-	Mat M = (Mat_<double>(3,3) << -1, -1, -1, -1, 8, -1, -1, -1, -1);
-	//Mat M = (Mat_<double>(3,3) << 0, -1, 0, -1, 5, -1, 0, -1, 0);
+	Mat M = (Mat_<double>(3, 3) <<
+			0, -1, 0,
+			-1, 5, -1,
+			0, -1, 0);
 
     // use filter
     filter2D(image, image, ddepth, M );
@@ -109,8 +136,17 @@ void Process::enhance() {
 	imwrite(outfile, image);
 }
 
-void Process::highlight() {
-	//threshold(Image,result,150,255,THRESH_BINARY);
+void Process::threshold_i(double power, int thres) {
+	Mat image = imread(infile, CV_LOAD_IMAGE_COLOR);
+	if (image.channels() >= 3) {
+		cvtColor( image, image, CV_RGB2GRAY );
+	}
+	normalize(image, image, 0, 1, NORM_MINMAX, CV_32F);
+	pow(image, power, image);
+	blur( image, image, Size( 3, 3 ) );
+	normalize(image, image, 0, 255, NORM_MINMAX);
+	threshold(image, image, thres, 255, THRESH_BINARY);
+	imwrite(outfile, image);
 }
 
 } /* namespace std */

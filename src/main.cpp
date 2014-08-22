@@ -17,22 +17,29 @@ void parse_args(vector<string> args) {
 			Process p("images/test-pattern.tif", "sobel.jpg");
 			p.sobel();
 		}
+		else if (s == "-noise") {
+			Process p1("images/ckt-board-saltpep.tif", "noise_median_3.jpg");
+			p1.removeNoiseMedian(3);
+
+			Process p2("images/ckt-board-saltpep.tif", "noise_median_5.jpg");
+			p2.removeNoiseMedian(5);
+
+			Process p3("images/ckt-board-saltpep.tif", "noise_mean.jpg");
+			p3.removeNoiseMean(3);
+		}
+		else if (s == "-threshold") {
+			Process p1("images/hubble.tif", "thres_220.jpg");
+			p1.threshold_i(1.0, 220);
+
+			Process p2("images/hubble.tif", "thres_230.jpg");
+			p2.threshold_i(1.0, 230);
+		}
+		else if (s == "-enhance") {
+			Process p1("images/blurry-moon.tif", "enhance.jpg");
+			p1.enhance();
+		}
 	}
 
-}
-
-void do_part1() {
-	Process p1("/vol/courses/comp422/images/test-pattern.tif", "edge.jpg");
-	p1.sobel();
-
-	Process p2("/vol/courses/comp422/images/ckt-board-saltpep.tif", "median_smooth.jpg");
-	p2.removeNoiseMedian();
-
-	//Process p3("/vol/courses/comp422/images/ckt-board-saltpep.tif", "fourier_smooth.jpg");
-	//p3.removeNoiseFourier();
-
-	Process p4("/vol/courses/comp422/images/blurry-moon.tif", "enhance.jpg");
-	p4.enhance();
 }
 
 int main(int argc, char *argv[]) {

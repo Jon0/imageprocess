@@ -18,10 +18,11 @@ public:
 	virtual ~Process();
 
 	void sobel();
-	void removeNoiseMedian();
+	void removeNoiseMedian(int);
+	void removeNoiseMean(int);
 	void removeNoiseFourier();
 	void enhance();
-	void highlight();
+	void threshold_i(double, int);
 
 private:
 	string infile, outfile;

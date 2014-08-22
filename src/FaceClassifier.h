@@ -25,26 +25,29 @@ public:
 	FaceClassifier();
 	virtual ~FaceClassifier();
 
+	void getWeights(ofstream &ofs, Mat &m, int classtype);
+	void outputWeights(string file);
+
 
 	void train();
 	void test();
-
-
 
 	void features(Mat &);
 	f2d pixelDir(Mat &, i2d);
 
 private:
-	int width, height;
+	string base_dir;
+	int width, height, numfeatures;
 	int correct, tested;
 
 	// images and associated label
     vector<Mat> images;
     vector<int> labels;
 	Ptr<FaceRecognizer> model;
+	double threshold;
 
 	void addImage(string, int);
-	void test(string, int);
+	bool test(string, int);
 };
 
 } /* namespace std */

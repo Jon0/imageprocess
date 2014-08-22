@@ -13,6 +13,9 @@ file(GLOB SRC_FILES
     "src/*.cpp"
 )
 
+# copy images to binary folder
+file( COPY "${PROJECT_SOURCE_DIR}/images/" DESTINATION "${PROJECT_BINARY_DIR}/images/")
+
 # make stuff
 add_executable( ImageProcessMain ${SRC_FILES} )
 target_link_libraries( ImageProcessMain ${OpenCV_LIBS} )
