@@ -1,15 +1,15 @@
 /*
  * FaceClassifier.h
  *
- *  Created on: 19/08/2014
+ *  Created on: 11/08/2014
  *      Author: remnanjona
  */
 
 #ifndef FACECLASSIFIER_H_
 #define FACECLASSIFIER_H_
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/contrib/contrib.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/contrib/contrib.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
