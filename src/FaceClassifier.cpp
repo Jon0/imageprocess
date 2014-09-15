@@ -32,11 +32,11 @@ static Mat normalise(Mat in) {
     return dst;
 }
 
-FaceClassifier::FaceClassifier() {
-	base_dir = "/local/scratch/";
+FaceClassifier::FaceClassifier(string b, int f) {
+	base_dir = b;
 	width = 19;
 	height = 19;
-	numfeatures = 16;
+	numfeatures = f;
 	correct = 0;
 	tested = 0;
 	model = createEigenFaceRecognizer(numfeatures);

@@ -22,7 +22,7 @@ typedef pair<double, double> f2d;
 
 class FaceClassifier {
 public:
-	FaceClassifier();
+	FaceClassifier(string, int);
 	virtual ~FaceClassifier();
 
 	void getWeights(ofstream &ofs, Mat &m, int classtype);
